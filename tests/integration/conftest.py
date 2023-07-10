@@ -1,14 +1,15 @@
 """Integration tests helpers."""
 from datetime import datetime
 import pytest
-import time
+
+# import time
 from fastapi.testclient import TestClient
 
 from pymongo import MongoClient
 from pymongo import MongoClient
 
-from netreports.db.mongodb import db, get_database
-from netreports.db.mongodb_utils import create_indexes
+from netreports.core.db.mongodb import db, get_database
+from netreports.core.db.mongodb_utils import create_indexes
 from netreports.core import config
 from netreports.main import app
 
@@ -39,14 +40,6 @@ def db_name():
     return f"netreports_integration_test_{datetime.now():%Y-%m-%d_%H:%M:%S}"
 
 
-@pytest.fixture(scope="session")
-def device_name(test_client):
-    """Create device name var."""
-    payload = {"name": "test-dev999", "model": "9400-48p", "site": "AZ", "role": "datacenter"}
-    test_client.post("/api/v1/devices/", json=payload)
-    return payload["name"]
-
-
 @pytest.fixture(autouse=True, scope="session")
 def setup_and_teardown(db_name):
     """Used to setup DB and DB collections and then remove after testing is completed."""
@@ -63,11 +56,11 @@ def setup_and_teardown(db_name):
 
     # This is preventing a race condition with tests running before indexes have fully finished being created
     # This is allowing duplicate command entries causing subsequent tests to fail.
-    index_info = db_client[db_name]["commands"].index_information()
-    while "device_id_1_command_1_data_type_1" not in index_info:
-        print("Sleeping until unique index has been created.")
-        time.sleep(0.25)
-        index_info = db_client[db_name]["commands"].index_information()
+    # index_info = db_client[db_name]["commands"].index_information()
+    # while "device_id_1_command_1_data_type_1" not in index_info:
+    #     print("Sleeping until unique index has been created.")
+    #     time.sleep(0.25)
+    #     index_info = db_client[db_name]["commands"].index_information()
 
     yield
 

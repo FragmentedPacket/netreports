@@ -1,15 +1,12 @@
 """Base CRUD operations."""
 from typing import Any, Dict, List, Optional, Tuple, Union
-from datetime import datetime
+from pydantic import BaseModel
 import pymongo
 from pymongo import results
-
-from netreports.schemas.commands import ReturnCommand
-from netreports.schemas.devices import ReturnDevice
 from netreports.core import config
 
 
-async def get_documents(
+async def get_documents(  # pylint: disable=R0913
     conn: pymongo.MongoClient,
     collection_name: str,
     return_model: Any,
@@ -17,7 +14,7 @@ async def get_documents(
     limit: int = config.PROJECT_QUERY_LIMIT,
     skip: int = 0,
     **kwargs,
-) -> Tuple[int, List[Union[ReturnCommand, ReturnDevice]]]:
+) -> Tuple[int, List[Any]]:
     """Get all documents with query.
 
     Args:
@@ -34,12 +31,11 @@ async def get_documents(
     if not query:
         query = {}
 
-    cursor = conn["reports"][collection_name].find(query, limit=limit, skip=skip, **kwargs)
+    cursor = conn[config.database_name][collection_name].find(query, limit=limit, skip=skip, **kwargs)
 
     for doc in cursor:
         count += 1
         documents.append(return_model(**doc))
-    cursor.close()
 
     return count, documents
 
@@ -47,7 +43,7 @@ async def get_documents(
 async def insert_many_documents(
     conn: pymongo.MongoClient,
     collection_name: str,
-    documents: List[Dict[Any, Any]],
+    documents: List[Union[BaseModel, Dict[Any, Any]]],
     **kwargs,
 ) -> results.InsertManyResult:
     """Get all documents with query.
@@ -62,6 +58,8 @@ async def insert_many_documents(
     """
     with conn.start_session() as session:
         with session.start_transaction():
-            result = conn["reports"][collection_name].insert_many(documents=(d.dict() for d in documents), **kwargs)
+            result = conn[config.database_name][collection_name].insert_many(
+                documents=(d.model_dump() for d in documents), **kwargs
+            )
 
     return result

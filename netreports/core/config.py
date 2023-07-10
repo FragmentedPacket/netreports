@@ -1,21 +1,21 @@
 """API Configuration."""
 import os
 from starlette.datastructures import CommaSeparatedStrings, Secret
-
-from netreports import version
+import tomli
 
 # Python version details
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
-API_V1_STR = "/api/v1"
+with open("pyproject.toml", "rb") as file:
+    pyproject = tomli.load(file)
+package_info = pyproject["tool"]["poetry"]
+
 
 # Project configuration
-PROJECT_VERSION = version.__version__
-PROJECT_NAME = os.getenv("PROJECT_NAME", version.__title__)
-PROJECT_DESCRIPTION = os.getenv("PROJECT_DESCRIPTION", version.__description__)
-PROJECT_AUTHOR = version.__author__
-PROJECT_EMAIL = version.__email__
-PROJECT_LICENSE = version.__license__
+PROJECT_VERSION = package_info["version"]
+PROJECT_NAME = package_info["name"].title()
+PROJECT_DESCRIPTION = package_info["description"]
+PROJECT_LICENSE = package_info["license"]
 PROJECT_LICENSE_URL = "https://www.apache.org/licenses/LICENSE-2.0"
 PROJECT_QUERY_LIMIT = 1000
 
@@ -39,6 +39,3 @@ MONGO_DB = os.getenv("MONGO_DB", "netreports")
 MONGODB_URL = f"mongodb://{MONGO_HOST}:{MONGO_PORT}"
 
 database_name = MONGO_DB
-
-devices_collection_name = "devices"
-commands_collection_name = "commands"

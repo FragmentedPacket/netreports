@@ -17,12 +17,10 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.9.7 || >3.9.7,<4.0"
-fastapi = "^0.99.0"
+fastapi = "^0.100.0"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 pymongo = "^4.4.0"
-streamlit = "^1.24.0"
-pandas = "^2.0.3"
-python-snappy = "^0.6.1"
+pydantic = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 bandit = "*"
@@ -39,6 +37,9 @@ pytest = "*"
 pytest-cov = "^4.0.0"
 toml = "*"
 yamllint = "*"
+
+[tool.poetry.group.dev.dependencies]
+httpx = "^0.24.1"
 
 [tool.black]
 line-length = 120
@@ -65,11 +66,11 @@ exclude = '''
 
 [tool.pylint.master]
 # Include the pylint_django plugin to avoid spurious warnings about Django patterns
-ignore=".venv"
+ignore = ".venv"
 
 [tool.pylint.basic]
 # No docstrings required for private methods (Pylint default), or for test_ functions, or for inner Meta classes.
-no-docstring-rgx="^(_|test_|Meta$)"
+no-docstring-rgx = "^(_|test_|Meta$)"
 
 [tool.pylint.messages_control]
 # Line length is enforced by Black, so pylint doesn't need to check it.
@@ -86,7 +87,7 @@ notes = """,
     """
 
 [tool.pylint.similarities]
-min-similarity-lines=8
+min-similarity-lines = 8
 
 [tool.pydocstyle]
 convention = "google"
@@ -100,12 +101,12 @@ match-dir = "(?!tests|migrations|development)[^\\.].*"
 # We've discussed and concluded that we consider this to be a valid style choice.
 add_ignore = "D212"
 
-[build-system]
-requires = ["poetry_core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
 [tool.pytest.ini_options]
 testpaths = [
     "tests"
 ]
 addopts = "-vv --cov=netreports --cov-report term-missing"
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
