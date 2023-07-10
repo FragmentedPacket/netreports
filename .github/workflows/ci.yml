@@ -1,0 +1,109 @@
+---
+name: "CI"
+on: # yamllint disable-line rule:truthy rule:comments
+  push:
+    branches:
+      - "main"
+      - "develop"
+  pull_request: ~
+
+jobs:
+  black:
+    runs-on: "ubuntu-20.04"
+    env:
+      INVOKE_NETREPORTS_LOCAL: "True"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v3"
+      - name: "Setup environment"
+        uses: "networktocode/gh-action-setup-poetry-environment@v5"
+      - name: "Linting: black"
+        run: "poetry run invoke black"
+  bandit:
+    runs-on: "ubuntu-20.04"
+    env:
+      INVOKE_NETREPORTS_LOCAL: "True"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v3"
+      - name: "Setup environment"
+        uses: "networktocode/gh-action-setup-poetry-environment@v5"
+      - name: "Linting: bandit"
+        run: "poetry run invoke bandit"
+  pydocstyle:
+    runs-on: "ubuntu-20.04"
+    env:
+      INVOKE_NETREPORTS_LOCAL: "True"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v3"
+      - name: "Setup environment"
+        uses: "networktocode/gh-action-setup-poetry-environment@v5"
+      - name: "Linting: pydocstyle"
+        run: "poetry run invoke pydocstyle"
+  flake8:
+    runs-on: "ubuntu-20.04"
+    env:
+      INVOKE_NETREPORTS_LOCAL: "True"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v3"
+      - name: "Setup environment"
+        uses: "networktocode/gh-action-setup-poetry-environment@v5"
+      - name: "Linting: flake8"
+        run: "poetry run invoke flake8"
+  yamllint:
+    runs-on: "ubuntu-20.04"
+    env:
+      INVOKE_NETREPORTS_LOCAL: "True"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v3"
+      - name: "Setup environment"
+        uses: "networktocode/gh-action-setup-poetry-environment@v5"
+      - name: "Linting: yamllint"
+        run: "poetry run invoke yamllint"
+  pylint:
+    needs:
+      - "bandit"
+      - "pydocstyle"
+      - "flake8"
+      - "yamllint"
+      - "black"
+    runs-on: "ubuntu-20.04"
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.10"]
+    env:
+      INVOKE_NETREPORTS_PYTHON_VER: "${{ matrix.python-version }}"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v3"
+      - name: "Setup environment"
+        uses: "networktocode/gh-action-setup-poetry-environment@v5"
+      - name: "Copy credentials"
+        run: "cp development/creds.example.env development/creds.env"
+      - name: "Linting: pylint"
+        run: "poetry run invoke pylint"
+  unittest:
+    needs:
+      - "pylint"
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.9", "3.10"]
+        mongo-version: ["5.0.14", "6.0.3"]
+    runs-on: "ubuntu-20.04"
+    env:
+      INVOKE_NETREPORTS_PYTHON_VER: "${{ matrix.python-version }}"
+      INVOKE_NETREPORTS_MONGO_VER: "${{ matrix.mongo-version }}"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v3"
+      - name: "Setup environment"
+        uses: "networktocode/gh-action-setup-poetry-environment@v5"
+      - name: "Copy credentials"
+        run: "cp development/creds.example.env development/creds.env"
+      - name: "Run Tests"
+        run: "poetry run invoke pytest"

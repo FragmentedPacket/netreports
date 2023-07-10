@@ -1,0 +1,31 @@
+---
+version: "3.8"
+services:
+  fastapi:
+    image: "netreports/fastapi:${PYTHON_VER}"
+    build:
+      args:
+        PYTHON_VER: ${PYTHON_VER}
+      context: "../"
+      dockerfile: "development/Dockerfile"
+    tty: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - "../:/source"
+      - "../tests/:/source/tests"
+    command: "--reload"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "from urllib.request import urlopen; exit(0) if urlopen('http://localhost:8080/docs').status == 200 else exit(1)"
+        ]
+      interval: "5s"
+      timeout: "1s"
+      retries: 5

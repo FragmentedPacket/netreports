@@ -1,0 +1,34 @@
+[
+    {
+        "name": "device-04",
+        "model": "7280QR2",
+        "site": "datacenter2",
+        "role": "datacenter",
+        "_id": "63a62105c43b0505e26312d0",
+        "lastupdate": "2022-12-23T21:43:33.264000"
+    },
+    {
+        "name": "device-05",
+        "model": "7280QR2",
+        "site": "datacenter2",
+        "role": "datacenter",
+        "_id": "63a62107c43b0505e26312d1",
+        "lastupdate": "2022-12-23T21:43:35.802000"
+    },
+    {
+        "name": "device-07",
+        "model": "7380QR2",
+        "site": "datacenter1",
+        "role": "access",
+        "_id": "63a6211dc43b0505e26312d2",
+        "lastupdate": "2022-12-23T21:43:57.660000"
+    },
+    {
+        "name": "device-01",
+        "model": "7380QR2",
+        "site": "datacenter1",
+        "role": "access",
+        "_id": "63a62b3f3d21955e6d9f363e",
+        "lastupdate": "2022-12-23T22:27:11.392000"
+    }
+]
